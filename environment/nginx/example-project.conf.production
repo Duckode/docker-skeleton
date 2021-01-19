@@ -1,0 +1,30 @@
+server {
+    server_name example-project.com.br;
+    index index.php index.html;
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/example-project.com.br/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example-project.com.br/privkey.pem;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+    root /var/www/html/example-project/public;
+    location / {
+        try_files $uri /index.php?$args;
+    }
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php7.4:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_read_timeout 600;
+    }
+}
+
+server {
+    listen 80;
+    server_name example-project.localhost;
+    server_name example-project.com.br;
+    return 301 https://$host$request_uri;
+}

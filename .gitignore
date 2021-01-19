@@ -1,0 +1,6 @@
+mysql/
+.idea
+www/*
+!www/example-project/
+docker-compose.yml
+nginx/example-project.conf

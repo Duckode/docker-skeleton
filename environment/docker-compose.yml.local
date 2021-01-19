@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  redis:
+    build:
+      context: ./redis
+    ports:
+      - 6379:6379
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password --sql_mode=""
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+  php7.4:
+    build:
+      context: ./php7.4
+    restart: always
+    ports:
+      - "9074:9000"
+    volumes:
+      - "./www:/var/www/html"
+    links:
+      - mysql
+
+  php7.2:
+    build:
+      context: ./php7.2
+    restart: always
+    ports:
+      - "9072:9000"
+    volumes:
+      - "./www:/var/www/html"
+    links:
+      - mysql
+
+  nginx:
+    build:
+      context: ./nginx
+    volumes:
+      - "./www:/var/www/html"
+    ports:
+      - "80:80"
+    restart: always
+    links:
+      - php7.2
+      - php7.4
